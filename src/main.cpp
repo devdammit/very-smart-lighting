@@ -1,27 +1,22 @@
 #include <Arduino.h>
+#include <IRremoteESP8266.h>
+#include <IRrecv.h>
 
-#if defined(MASTER_MODE)
-#define MASTER_MODE true
-#else
-#define MASTER_MODE false
-#endif
+IRrecv irrecv(3);
 
-void setup()
-{
-  // put your setup code here, to run once:
-  Serial.begin(9600);
+decode_results results;
+
+void setup() {
+  Serial.begin(115200);
+  irrecv.enableIRIn();
+  Serial.println("IR Receiver ready");
 }
 
-void loop()
-{
-  // put your main code here, to run repeatedly:
-  delay(1000);
-  if (MASTER_MODE)
-  {
-    Serial.println("I am the master");
+void loop() {
+  if (irrecv.decode(&results)) {
+    Serial.println(results.value, HEX);
+    irrecv.resume(); // Receive the next value
   }
-  else
-  {
-    Serial.println("I am the slave");
-  }
+  delay(300);
+  Serial.println("loop");
 }
