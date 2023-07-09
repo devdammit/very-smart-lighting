@@ -1,14 +1,27 @@
 #include <Arduino.h>
 
+#if defined(MASTER_MODE)
+#define MASTER_MODE true
+#else
+#define MASTER_MODE false
+#endif
 
-void setup() {
+void setup()
+{
   // put your setup code here, to run once:
   Serial.begin(9600);
 }
 
-void loop() {
+void loop()
+{
   // put your main code here, to run repeatedly:
-  // Serial.println(TEST);
   delay(1000);
-  Serial.println("Hello World!");
+  if (MASTER_MODE)
+  {
+    Serial.println("I am the master");
+  }
+  else
+  {
+    Serial.println("I am the slave");
+  }
 }
