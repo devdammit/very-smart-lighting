@@ -2,18 +2,19 @@
 
 class Lighting
 {
-
-  Lighting(int pin)
-  {
-    _pin = pin;
-  }
-
 private:
   bool _enabled;
 
   int _pin;
 
+  int _brightness;
+
 public:
+  Lighting(int pin)
+  {
+    _pin = pin;
+  }
+
   void enable()
   {
     _enabled = true;
@@ -32,6 +33,16 @@ public:
   {
     Serial.print("Setting brightness to ");
     Serial.println(brightness);
+  }
+
+  void decreaseBrightness()
+  {
+    Serial.println("Decreasing brightness");
+  }
+
+  void increaseBrightness()
+  {
+    Serial.println("Increasing brightness");
   }
 
   void setColor(int red, int green, int blue)
