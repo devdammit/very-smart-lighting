@@ -12,8 +12,8 @@
 #define MASTER_MODE false
 #endif
 
-const int IR_PIN = 3;
-const int LED_PIN = 2;
+const int IR_PIN = 2;
+const int LED_PIN = 5;
 
 IRrecv irrecv(IR_PIN);
 decode_results results;
@@ -66,11 +66,11 @@ void executeCommand(command_struct* command) {
       break;
     }
     case 6: {
-      lighting.setColor(0, 0, 255);
+      lighting.setColor(255, 255, 255);
       break;
     }
     case 7: {
-      lighting.setColor(255, 255, 255);
+      lighting.setColor(159, 3, 226);
       break;
     }
   }
