@@ -20,7 +20,7 @@ decode_results results;
 
 Lighting lighting(LED_PIN);
 
-uint8_t broadcastAddress[] = {0xC0, 0x49, 0xEF, 0xCC, 0xB1, 0x78};
+uint8_t slaveAddress[] = {0xB0, 0xA7, 0x32, 0xDB, 0x1E, 0x1C};
 
 typedef struct command_struct {
   int8_t command;
@@ -111,7 +111,7 @@ void masterSetup() {
   peerInfo.channel = 0;
   peerInfo.encrypt = false;
 
-  memcpy(peerInfo.peer_addr, broadcastAddress, 6);
+  memcpy(peerInfo.peer_addr, slaveAddress, 6);
 
   if (esp_now_add_peer(&peerInfo) != ESP_OK) {
     Serial.println("Failed to add peer");
