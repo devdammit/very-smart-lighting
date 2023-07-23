@@ -1,75 +1,70 @@
 #include <Arduino.h>
-#include <Adafruit_NeoPixel.h>
+#include <Lighting.h>
 
-class Lighting
+
+Lighting::Lighting(int pin)
 {
-private:
-  Adafruit_NeoPixel NeoPixel;
+  Adafruit_NeoPixel strip = Adafruit_NeoPixel(84, pin, NEO_GRB + NEO_KHZ800);
 
-  int _red;
-  int _green;
-  int _blue;
+  _red = 255;
+  _green = 255;
+  _blue = 255;
+  _brightness = 100;
+  _enabled = true;
 
-  int _brightness;
+}
 
-  bool _enabled;
+void Lighting::begin()
+{
+  strip.begin();
+  strip.setBrightness(_brightness);
+  strip.show();
+}
 
-public:
-  Lighting(int pin)
-  {
-    Adafruit_NeoPixel NeoPixel = Adafruit_NeoPixel(84, pin, NEO_GRB + NEO_KHZ800);
+void Lighting::enable()
+{
+  _enabled = true;
 
-    _red = 255;
-    _green = 255;
-    _blue = 255;
-    _brightness = 50;
+  Serial.println("Lighting enabled");
+}
 
-    NeoPixel.begin();
-    NeoPixel.setBrightness(_brightness);
-  }
+void Lighting::disable()
+{
+  _enabled = false;
 
-  void enable()
-  {
-    _enabled = true;
+  Serial.println("Lighting disabled");
+}
 
-    Serial.println("Lighting enabled");
-  }
+void Lighting::decreaseBrightness()
+{
+  if (_brightness == 0) return;
+  else _brightness -= 10;
 
-  void disable()
-  {
-    _enabled = false;
+  strip.setBrightness(_brightness);
 
-    Serial.println("Lighting disabled");
-  }
+  Serial.print("Setting brightness to ");
+  Serial.println(_brightness);
+}
 
-  void setBrightness(int brightness)
-  {
-    Serial.print("Setting brightness to ");
-    Serial.println(brightness);
-  }
+void Lighting::increaseBrightness()
+{
+  if (_brightness == 100) return;
+  else _brightness += 10;
 
-  void decreaseBrightness()
-  {
-    if (_brightness == 0) return;
+  strip.setBrightness(_brightness);
 
-    _brightness -= 10;
-    NeoPixel.setBrightness(_brightness);
-  }
+  Serial.print("Setting brightness to ");
+  Serial.println(_brightness);
+}
 
-  void increaseBrightness()
-  {
-    if (_brightness == 100) return;
+void Lighting::setColor(uint8_t red, uint8_t green, uint8_t blue)
+{
+  _red = red;
+  _green = green;
+  _blue = blue;
 
-    _brightness += 10;
-    NeoPixel.setBrightness(_brightness);
-  }
+  strip.fill(strip.Color(_red, _green, _blue), 0, strip.numPixels());
+  strip.show();
+}
 
-  void setColor(int red, int green, int blue)
-  {
-    for (int i = 0; i < NeoPixel.numPixels(); i++) {
-      NeoPixel.setPixelColor(i, red, green, blue);
-    }
-    
-    NeoPixel.show();
-  }
-};
+

@@ -4,7 +4,10 @@
 #include <esp_now.h>
 #include <WiFi.h>
 #include <map>
-#include <Lighting.cpp>
+#include <Lighting.h>
+#include <Adafruit_NeoPixel.h>
+
+
 
 #if defined(MASTER_MODE)
 #define MASTER_MODE true
@@ -12,13 +15,14 @@
 #define MASTER_MODE false
 #endif
 
-const int IR_PIN = 2;
-const int LED_PIN = 5;
+#define SIMPLE_LED_PIN 18
 
-IRrecv irrecv(IR_PIN);
+
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(9, 5, NEO_GRB + NEO_KHZ800);
+
+IRrecv irrecv(17);
 decode_results results;
 
-Lighting lighting(LED_PIN);
 
 uint8_t slaveAddress[] = {0xB0, 0xA7, 0x32, 0xDB, 0x1E, 0x1C};
 
@@ -42,35 +46,39 @@ esp_now_peer_info_t peerInfo;
 void executeCommand(command_struct* command) {
   switch(command->command) {
     case 0: {
-      lighting.decreaseBrightness();
+      Serial.println("Decreasing brightness");
       break;
     }
     case 1: {
-      lighting.increaseBrightness();
+      Serial.println("Increasing brightness");
       break;
     }
     case 2: {
-      lighting.disable();
+      Serial.println("Disabling lighting");
       break;
     }
     case 3: {
-      lighting.enable();
+      Serial.println("Enabling lighting");
       break;
     }
     case 4: {
-      lighting.setColor(255, 0, 0);
+      strip.fill(strip.Color(255, 0, 0), 0, strip.numPixels());
+      strip.show();
       break;
     }
     case 5: {
-      lighting.setColor(0, 255, 0);
+      strip.fill(strip.Color(0, 255, 0), 0, strip.numPixels());
+      strip.show();
       break;
     }
     case 6: {
-      lighting.setColor(255, 255, 255);
+      strip.fill(strip.Color(0, 0, 255), 0, strip.numPixels());
+      strip.show();
       break;
     }
     case 7: {
-      lighting.setColor(159, 3, 226);
+      strip.fill(strip.Color(159, 3, 226), 0, strip.numPixels());
+      strip.show();
       break;
     }
   }
@@ -133,9 +141,11 @@ void slaveSetup() {
 void setup()
 {
   Serial.begin(9600);
-
+  strip.begin();
+  strip.show();
   WiFi.mode(WIFI_STA);
 
+  pinMode(SIMPLE_LED_PIN, OUTPUT);
   if (esp_now_init() != ESP_OK) {
     Serial.println("Error initializing ESP-NOW");
     return;
@@ -154,10 +164,11 @@ void loop()
   {
 
     if (irrecv.decode(&results)) {
-      // Serial.println(results.value, HEX);
+      Serial.println(results.value, HEX);
+      digitalWrite(SIMPLE_LED_PIN, HIGH);
 
       if (CodeToButtonMap.find(results.value) != CodeToButtonMap.end()) {
-        // Serial.println(CodeToButtonMap[results.value].command);
+        Serial.println(CodeToButtonMap[results.value].command);
         executeCommand(&CodeToButtonMap[results.value]);
         sendCommand(CodeToButtonMap[results.value]);
       }
@@ -165,6 +176,8 @@ void loop()
       irrecv.resume(); // Receive the next value
     }
 
+    delay(200);
+    digitalWrite(SIMPLE_LED_PIN, LOW);
     delay(200);
   }
 }

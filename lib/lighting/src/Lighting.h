@@ -1,24 +1,32 @@
 #include <Arduino.h>
+#include <Adafruit_NeoPixel.h>
 
 class Lighting
 {
-private:
-  int _pin;
-  int _brightness;
-  int _duration;
-  int _lastUpdate;
-  bool _enabled;
+
 
 public:
   Lighting(int pin);
 
+  void begin();
+
   void enable();
   void disable();
-
-  void setBrightness(int brightness);
 
   void decreaseBrightness();
   void increaseBrightness();
 
-  void setColor(int red, int green, int blue);
+  void setColor(uint8_t red, uint8_t green, uint8_t blue);
+
+private:
+  Adafruit_NeoPixel strip;
+
+  uint8_t _red;
+  uint8_t _green;
+  uint8_t _blue;
+
+  uint8_t _brightness;
+
+  bool _enabled;
+
 };
