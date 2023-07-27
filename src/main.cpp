@@ -15,16 +15,14 @@
 #define MASTER_MODE false
 #endif
 
-#define SIMPLE_LED_PIN 18
+#define IR_PIN 17
 
-
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(9, 5, NEO_GRB + NEO_KHZ800);
-
-IRrecv irrecv(17);
+IRrecv irrecv(IR_PIN);
 decode_results results;
 
+uint8_t slaveAddress[] = {0xB0, 0xA7, 0x32, 0xDB, 0x28, 0x80};
 
-uint8_t slaveAddress[] = {0xB0, 0xA7, 0x32, 0xDB, 0x1E, 0x1C};
+Lighting lighting;
 
 typedef struct command_struct {
   int8_t command;
@@ -46,39 +44,35 @@ esp_now_peer_info_t peerInfo;
 void executeCommand(command_struct* command) {
   switch(command->command) {
     case 0: {
-      Serial.println("Decreasing brightness");
+      lighting.decreaseBrightness();
       break;
     }
     case 1: {
-      Serial.println("Increasing brightness");
+      lighting.increaseBrightness();
       break;
     }
     case 2: {
-      Serial.println("Disabling lighting");
+      lighting.disable();
       break;
     }
     case 3: {
-      Serial.println("Enabling lighting");
+      lighting.enable();
       break;
     }
     case 4: {
-      strip.fill(strip.Color(255, 0, 0), 0, strip.numPixels());
-      strip.show();
+      lighting.setColor(255, 0, 0);
       break;
     }
     case 5: {
-      strip.fill(strip.Color(0, 255, 0), 0, strip.numPixels());
-      strip.show();
+      lighting.setColor(0, 255, 0);
       break;
     }
     case 6: {
-      strip.fill(strip.Color(0, 0, 255), 0, strip.numPixels());
-      strip.show();
+      lighting.setColor(0, 0, 255);
       break;
     }
     case 7: {
-      strip.fill(strip.Color(159, 3, 226), 0, strip.numPixels());
-      strip.show();
+      lighting.setColor(159, 3, 226);
       break;
     }
   }
@@ -141,11 +135,10 @@ void slaveSetup() {
 void setup()
 {
   Serial.begin(9600);
-  strip.begin();
-  strip.show();
   WiFi.mode(WIFI_STA);
 
-  pinMode(SIMPLE_LED_PIN, OUTPUT);
+  lighting.begin();
+
   if (esp_now_init() != ESP_OK) {
     Serial.println("Error initializing ESP-NOW");
     return;
@@ -164,11 +157,8 @@ void loop()
   {
 
     if (irrecv.decode(&results)) {
-      Serial.println(results.value, HEX);
-      digitalWrite(SIMPLE_LED_PIN, HIGH);
 
       if (CodeToButtonMap.find(results.value) != CodeToButtonMap.end()) {
-        Serial.println(CodeToButtonMap[results.value].command);
         executeCommand(&CodeToButtonMap[results.value]);
         sendCommand(CodeToButtonMap[results.value]);
       }
@@ -176,8 +166,6 @@ void loop()
       irrecv.resume(); // Receive the next value
     }
 
-    delay(200);
-    digitalWrite(SIMPLE_LED_PIN, LOW);
     delay(200);
   }
 }

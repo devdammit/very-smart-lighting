@@ -6,7 +6,7 @@ class Lighting
 
 
 public:
-  Lighting(int pin);
+  Lighting();
 
   void begin();
 
@@ -19,8 +19,6 @@ public:
   void setColor(uint8_t red, uint8_t green, uint8_t blue);
 
 private:
-  Adafruit_NeoPixel strip;
-
   uint8_t _red;
   uint8_t _green;
   uint8_t _blue;
@@ -28,5 +26,4 @@ private:
   uint8_t _brightness;
 
   bool _enabled;
-
 };
